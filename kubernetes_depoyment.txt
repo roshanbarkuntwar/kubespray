@@ -1,0 +1,88 @@
+172.31.13.32
+172.31.12.102
+172.31.12.234
+
+imp notes
+
+1) bvm 2 cpun 8 gb ram ki hona
+2) controller mein python3 hona 
+git clone mardey kubespray
+3)ansible installtion 
+VENVDIR=kubespray-venv
+KUBESPRAYDIR=kubespray
+ANSIBLE_VERSION=2.12
+virtualenv  --python=$(which python3) $VENVDIR
+source $VENVDIR/bin/activate
+cd $KUBESPRAYDIR
+pip install -U -r requirements-$ANSIBLE_VERSION.txt
+test -f requirements-$ANSIBLE_VERSION.yml && \
+  ansible-galaxy role install -r requirements-$ANSIBLE_VERSION.yml && \
+  ansible-galaxy collection -r requirements-$ANSIBLE_VERSION.yml
+
+
+4) ssh
+5) firewall mein all traffic nahi to particular port number (https://kubernetes.io/docs/reference/networking/ports-and-protocols/)
+follow steps---
+
+# Copy ``inventory/sample`` as ``inventory/mycluster``
+cp -rfp inventory/sample inventory/mycluster
+
+# Update Ansible inventory file with inventory builder
+declare -a IPS=(10.10.1.3 10.10.1.4 10.10.1.5)
+CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
+
+# Review and change parameters under ``inventory/mycluster/group_vars``
+cat inventory/mycluster/group_vars/all/all.yml
+cat inventory/mycluster/group_vars/k8s_cluster/k8s-cluster.yml
+
+# Deploy Kubespray with Ansible Playbook - run the playbook as root
+# The option `--become` is required, as for example writing SSL keys in /etc/,
+# installing packages and interacting with various systemd daemons.
+# Without --become the playbook will fail to run!
+ansible-playbook -i inventory/mycluster/hosts.yaml  --become --become-user=root cluster.yml
+
+
+cluster will be created
+
+master mein login hona
+sudo kubectl get nodes
+
+badmein k9s install 
+
+node3   Ready    <none>          5m      v1.25.5
+ubuntu@node2:~$ curl -sS https://webinstall.dev/k9s | bash
+
+Thanks for using webi to install 'k9s@stable' on 'Linux/x86_64'.
+Have a problem? Experience a bug? Please let us know:
+        https://github.com/webinstall/webi-installers/issues
+
+Lovin' it? Say thanks with a Star on GitHub:
+        https://github.com/webinstall/webi-installers
+
+Downloading k9s from
+https://github.com/derailed/k9s/releases/download/v0.26.7/k9s_Linux_x86_64.tar.gz
+
+Saved as /home/ubuntu/Downloads/webi/k9s/0.26.7/k9s_Linux_x86_64.tar.gz
+Extracting /home/ubuntu/Downloads/webi/k9s/0.26.7/k9s_Linux_x86_64.tar.gz
+Installing to /home/ubuntu/.local/opt/k9s-v0.26.7/bin/k9s
+Installed 'k9s v0.26.7' as /home/ubuntu/.local/bin/k9s
+
+PATH.env updated with:
+        export PATH="/home/ubuntu/.local/bin:$PATH"
+
+TO FINISH: copy, paste & run the following command:
+
+        source ~/.config/envman/PATH.env
+        (newly opened terminal windows will update automatically)
+ubuntu@node2:~$ sudo /home/ubuntu/.local/bin/k9s
+ubuntu@node2:~$ k9s="sudo /home/ubuntu/.local/bin/k9s"
+ubuntu@node2:~$ echo $k9s
+sudo /home/ubuntu/.local/bin/k9s
+ubuntu@node2:~$ alias k9s=$k9s
+ubuntu@node2:~$ k9s
+
+
+repeat this step below after restart logout
+
+
+
